@@ -1,6 +1,6 @@
 defmodule NinetyNineProblems.Lists do
   @moduledoc """
-  1. Lists [P1.01 ~ P1.28]
+  1. Lists [P1.01 ~ P1.10]
   """
 
   @doc """
@@ -9,11 +9,11 @@ defmodule NinetyNineProblems.Lists do
   ## Examples
 
       iex> NinetyNineProblems.Lists.questions
-      :"Lists [P1.01 ~ P1.28]"
+      :"Lists [P1.01 ~ P1.10]"
 
   """
   def questions do
-    :"Lists [P1.01 ~ P1.28]"
+    :"Lists [P1.01 ~ P1.10]"
   end
 
   @doc """
@@ -107,9 +107,9 @@ defmodule NinetyNineProblems.Lists do
 
   """
   def reverse_list(list), do: reverse_list(list, [])
-  def reverse_list([head | tail], revarsed), do: reverse_list(tail, [head] ++ revarsed)
-  def reverse_list([], revarsed), do: revarsed
-  def reverse_list(_, _), do: :error
+  defp reverse_list([head | tail], revarsed), do: reverse_list(tail, [head] ++ revarsed)
+  defp reverse_list([], revarsed), do: revarsed
+  defp reverse_list(_, _), do: :error
 
   @doc """
   P1.06: Find out whether a list is a palindrome.
@@ -152,4 +152,82 @@ defmodule NinetyNineProblems.Lists do
   end
   def flatten_list([]), do: []
   def flatten_list(_), do: :error
+
+
+  @doc """
+  P1.08: Eliminate consecutive duplicates of list elements.
+  If a list contains repeated elements they should be replaced with a single copy of the element. The order of the elements should not be changed.
+
+  ## Examples
+
+    iex> NinetyNineProblems.Lists.eliminate_duplicates(["a","a","a","a","b","c","c","a","a","d","e","e","e"])
+    ["a","b","c","a","d","e"]
+
+    iex> NinetyNineProblems.Lists.eliminate_duplicates(["a","b","c","a","d","e"])
+    ["a","b","c","a","d","e"]
+
+    iex> NinetyNineProblems.Lists.eliminate_duplicates([1,2,2,3,3,3,4,4,1,1,5,5])
+    [1,2,3,4,1,5]
+
+  """
+  def eliminate_duplicates([]), do: []
+  def eliminate_duplicates([head | tail]), do: eliminate_duplicates(head, tail, [head])
+  defp eliminate_duplicates(key, [head | tail], final) do
+    if head === key, do: eliminate_duplicates(key, tail, final), else: eliminate_duplicates(head, tail, final ++ [head])
+  end
+  defp eliminate_duplicates(_key, [], final), do: final
+
+  @doc """
+  P1.09: Pack consecutive duplicates of list elements into sublists.
+  If a list contains repeated elements they should be placed in separate sublists.
+
+  ## Examples
+
+    iex> NinetyNineProblems.Lists.pack([1,1,1,2,2,2,2,1,1,3,3])
+    [[1,1,1],[2,2,2,2],[1,1],[3,3]]
+
+    iex> NinetyNineProblems.Lists.pack([1,2,1,3])
+    [[1],[2],[1],[3]]
+
+    iex> NinetyNineProblems.Lists.pack([])
+    []
+
+  """
+  def pack([]), do: []
+  def pack([head | tail]) do
+    pack(tail, [[head]])
+  end
+  defp pack([head | tail], [[key | _tail] = f_head | f_tail] = final) do
+    if (head === key) do
+      pack(tail, [[head | f_head] | f_tail])
+    else
+      pack(tail, [[head] | final])
+    end
+  end
+  defp pack([], final) do
+    reverse_list(final)
+  end
+
+  @doc """
+  P1.10: Run-length encoding of a list.
+  Use the result of problem P09 to implement the so-called run-length encoding data compression method. Consecutive duplicates of elements are encoded as terms [N,E] where N is the number of duplicates of the element E.
+
+  ## Examples
+
+    iex> NinetyNineProblems.Lists.encode([1,1,1,2,2,2,2,1,1,3,3])
+    [[3,1],[4,2],[2,1],[2,3]]
+
+    iex> NinetyNineProblems.Lists.encode([1,2,1,3])
+    [[1,1],[1,2],[1,1],[1,3]]
+
+    iex> NinetyNineProblems.Lists.encode([])
+    []
+
+  """
+
+  def encode([]), do: []
+  def encode([_head | _tail] = list) do
+    Enum.map(pack(list), fn([head | _tail] = x) -> [number_of_element(x), head] end)
+  end
+
 end
