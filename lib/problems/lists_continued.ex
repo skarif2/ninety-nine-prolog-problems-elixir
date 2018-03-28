@@ -49,18 +49,18 @@ defmodule NinetyNineProblems.ListsContinued do
 
   ## Examples
 
-      iex> NinetyNineProblems.ListsContinued.decodeModified([[4,1],2,[2,3],[2,1],4,[4,5]])
+      iex> NinetyNineProblems.ListsContinued.decode_modified([[4,1],2,[2,3],[2,1],4,[4,5]])
       [1,1,1,1,2,3,3,1,1,4,5,5,5,5]
 
-      iex> NinetyNineProblems.ListsContinued.decodeModified([1,2,3,1,4,5])
+      iex> NinetyNineProblems.ListsContinued.decode_modified([1,2,3,1,4,5])
       [1,2,3,1,4,5]
 
-      iex> NinetyNineProblems.ListsContinued.decodeModified([])
+      iex> NinetyNineProblems.ListsContinued.decode_modified([])
       []
 
   """
-  def decodeModified([]), do: []
-  def decodeModified([_head | _tail] = list) do
+  def decode_modified([]), do: []
+  def decode_modified([_head | _tail] = list) do
     flatten_list(Enum.map(list, fn(x) -> decode(x) end))
   end
   defp decode([head, tail | _rest]), do: decode([head - 1, tail], [tail])
@@ -71,4 +71,67 @@ defmodule NinetyNineProblems.ListsContinued do
       _ -> decode([head - 1, tail], [tail | final])
     end
   end
+
+
+  @doc """
+  P1.14: Duplicate the elements of a list.
+
+  ## Examples
+
+      iex> NinetyNineProblems.ListsContinued.duplicate([1,2,2,2,3,3,4,5])
+      [1,1,2,2,2,2,2,2,3,3,3,3,4,4,5,5]
+
+      iex> NinetyNineProblems.ListsContinued.duplicate([1,2,3,4,5])
+      [1,1,2,2,3,3,4,4,5,5]
+
+      iex> NinetyNineProblems.ListsContinued.duplicate([])
+      []
+
+  """
+  def duplicate([]), do: []
+  def duplicate([head | tail]), do: duplicate(tail, [head, head])
+  defp duplicate([head | tail], final), do: duplicate(tail, [final | [head, head]])
+  defp duplicate([], final), do: flatten_list(final)
+
+  @doc """
+  P1.15: Duplicate the elements of a list a given number of times.
+
+  ## Examples
+
+      iex> NinetyNineProblems.ListsContinued.repeat_duplicate([1,2,2,3,3,4,5], 3)
+      [1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,5,5,5]
+
+      iex> NinetyNineProblems.ListsContinued.repeat_duplicate([1,2,3,4,5], 3)
+      [1,1,1,2,2,2,3,3,3,4,4,4,5,5,5]
+
+      iex> NinetyNineProblems.ListsContinued.repeat_duplicate([], 1)
+      []
+
+  """
+  def repeat_duplicate([], _repeat), do: []
+  def repeat_duplicate([head | tail], repeat), do: repeat_duplicate(tail, repeat, decode([repeat, head]))
+  defp repeat_duplicate([head | tail], repeat, final), do: repeat_duplicate(tail, repeat, (final ++ decode([repeat, head])))
+  defp repeat_duplicate([], _repeat, final), do: final
+
+  @doc """
+  P1.16: Drop every N'th element from a list.
+
+  ## Examples
+
+      iex> NinetyNineProblems.ListsContinued.drop_nth([1,2,3,4,5,6,7,8,9], 3)
+      [1,2,4,5,7,8]
+
+      iex> NinetyNineProblems.ListsContinued.drop_nth([1,2,3,4,5], 2)
+      [1,3,5]
+
+      iex> NinetyNineProblems.ListsContinued.drop_nth([], 1)
+      []
+
+  """
+  def drop_nth([], _n), do: []
+  def drop_nth([head | tail], n), do: drop_nth(tail, n, [head], 2)
+  defp drop_nth([head | tail], n, final, count) do
+    if n === count, do: drop_nth(tail, n, final, 1), else: drop_nth(tail, n, [head | final], count + 1)
+  end
+  defp drop_nth([], _n, final, _count), do: reverse_list(final)
 end
